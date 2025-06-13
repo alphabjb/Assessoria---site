@@ -155,11 +155,16 @@ body {
   background: white;
   border-radius: 0.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.2s;
+  transition: all 0.3s ease;
 }
 
 .card:hover {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.influencers-grid .card {
+  cursor: pointer;
 }
 
 .card-header {
@@ -174,6 +179,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  justify-content: center;
 }
 
 .card-header p {
@@ -389,54 +395,6 @@ body {
   background: #ef4444;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .hero-content h2 {
-    font-size: 2rem;
-  }
-
-  .hero-content p {
-    font-size: 1rem;
-  }
-
-  .admin-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .header-content {
-    flex-direction: column;
-    gap: 1rem;
-    text-align: center;
-  }
-
-  .header-left {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .influencers-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 480px) {
-  .container {
-    padding: 0 0.5rem;
-  }
-
-  .card-content {
-    padding: 1rem;
-  }
-
-  .hero {
-    padding: 2rem 0;
-  }
-
-  .influencers-section {
-    padding: 2rem 0;
-  }
-}
-
 /* Modal Styles */
 .modal {
   display: none;
@@ -586,20 +544,35 @@ body {
   }
 }
 
-/* Card hover effect */
-.influencers-grid .card {
-  cursor: pointer;
-  transform: translateY(0);
-  transition: all 0.3s ease;
-}
-
-.influencers-grid .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-}
-
-/* Responsive modal */
+/* Responsive */
 @media (max-width: 768px) {
+  .hero-content h2 {
+    font-size: 2rem;
+  }
+
+  .hero-content p {
+    font-size: 1rem;
+  }
+
+  .admin-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .header-content {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .header-left {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .influencers-grid {
+    grid-template-columns: 1fr;
+  }
+
   .modal-content {
     width: 95%;
     margin: 1rem;
@@ -621,5 +594,23 @@ body {
 
   .contact-btn {
     padding: 0.75rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 0.5rem;
+  }
+
+  .card-content {
+    padding: 1rem;
+  }
+
+  .hero {
+    padding: 2rem 0;
+  }
+
+  .influencers-section {
+    padding: 2rem 0;
   }
 }
