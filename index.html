@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InfluencerHub - Assessoria de Influenciadores</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-users"></i>
+                    <h1>InfluencerHub</h1>
+                </div>
+                <a href="admin.html" class="btn btn-outline">
+                    <i class="fas fa-cog"></i>
+                    Administrar
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h2>Assessoria de Influenciadores</h2>
+                <p>Conectamos marcas aos melhores influenciadores digitais. Encontre o parceiro perfeito para sua campanha.</p>
+                <div class="badge" id="influencer-count">
+                    0 Influenciadores Disponíveis
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Influencers Grid -->
+    <section class="influencers-section">
+        <div class="container">
+            <div id="influencers-grid" class="influencers-grid">
+                <!-- Influencers will be loaded here -->
+            </div>
+            
+            <!-- Empty State -->
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <i class="fas fa-users"></i>
+                <h3>Nenhum influenciador cadastrado</h3>
+                <p>Adicione influenciadores para começar a exibir o portfólio.</p>
+                <a href="admin.html" class="btn btn-primary">Adicionar Primeiro Influenciador</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 InfluencerHub. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Modal for Influencer Details -->
+    <div id="influencer-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <div class="modal-body">
+                <div class="modal-avatar">
+                    <div id="modal-avatar-content"></div>
+                </div>
+                <div class="modal-info">
+                    <h2 id="modal-name"></h2>
+                    <p id="modal-description"></p>
+                    <div class="modal-contacts">
+                        <a id="modal-email" class="contact-btn">
+                            <i class="fas fa-envelope"></i>
+                            <span>Enviar Email</span>
+                        </a>
+                        <a id="modal-phone" class="contact-btn">
+                            <i class="fas fa-phone"></i>
+                            <span>Ligar</span>
+                        </a>
+                        <a id="modal-whatsapp" class="contact-btn whatsapp">
+                            <i class="fab fa-whatsapp"></i>
+                            <span>WhatsApp</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
