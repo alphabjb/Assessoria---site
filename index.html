@@ -438,6 +438,75 @@
           text-align: center;
         }
 
+        /* Password Modal */
+        .password-modal {
+          display: none;
+          position: fixed;
+          z-index: 2000;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.8);
+          backdrop-filter: blur(5px);
+        }
+
+        .password-modal.show {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .password-modal-content {
+          background: white;
+          border-radius: 1rem;
+          max-width: 400px;
+          width: 90%;
+          padding: 2rem;
+          text-align: center;
+          animation: slideIn 0.3s ease;
+        }
+
+        .password-modal h3 {
+          color: #111827;
+          margin-bottom: 1rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+        }
+
+        .password-modal p {
+          color: #6b7280;
+          margin-bottom: 1.5rem;
+        }
+
+        .password-input {
+          width: 100%;
+          padding: 0.75rem;
+          border: 2px solid #e5e7eb;
+          border-radius: 0.5rem;
+          font-size: 1rem;
+          text-align: center;
+          margin-bottom: 1.5rem;
+          letter-spacing: 0.1em;
+        }
+
+        .password-input:focus {
+          outline: none;
+          border-color: #7c3aed;
+          box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+
+        .password-buttons {
+          display: flex;
+          gap: 1rem;
+        }
+
+        .password-buttons .btn {
+          flex: 1;
+        }
+
         /* Animations */
         @keyframes fadeIn {
           from {
@@ -506,6 +575,10 @@
           .contact-btn {
             padding: 0.75rem 1rem;
           }
+
+          .password-buttons {
+            flex-direction: column;
+          }
         }
 
         @media (max-width: 480px) {
@@ -536,10 +609,10 @@
                     <i class="fas fa-users"></i>
                     <h1>InfluencerHub</h1>
                 </div>
-                <a href="admin.html" class="btn btn-outline">
+                <button onclick="requestAdminAccess()" class="btn btn-outline">
                     <i class="fas fa-cog"></i>
                     Administrar
-                </a>
+                </button>
             </div>
         </div>
     </header>
@@ -569,7 +642,7 @@
                 <i class="fas fa-users"></i>
                 <h3>Nenhum influenciador cadastrado</h3>
                 <p>Adicione influenciadores para começar a exibir o portfólio.</p>
-                <a href="admin.html" class="btn btn-primary">Adicionar Primeiro Influenciador</a>
+                <button onclick="requestAdminAccess()" class="btn btn-primary">Adicionar Primeiro Influenciador</button>
             </div>
         </div>
     </section>
@@ -614,7 +687,30 @@
         </div>
     </div>
 
+    <!-- Password Modal -->
+    <div id="password-modal" class="password-modal">
+        <div class="password-modal-content">
+            <h3>
+                <i class="fas fa-lock"></i>
+                Acesso Restrito
+            </h3>
+            <p>Digite a senha para acessar a área administrativa:</p>
+            <input type="password" id="password-input" class="password-input" placeholder="Digite a senha" maxlength="8">
+            <div class="password-buttons">
+                <button onclick="closePasswordModal()" class="btn btn-outline">Cancelar</button>
+                <button onclick="validatePassword()" class="btn btn-primary">Entrar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Admin password
+        const ADMIN_PASSWORD = "13162510";
+        
+        // Session management
+        let isAuthenticated = false;
+        let authTimeout = null;
+
         // Influencer management
         class InfluencerManager {
           constructor() {
@@ -636,14 +732,112 @@
               this.influencers = [
                 {
                   id: "1",
-                  name: "Mirna - Cozinha",
-                  photo: "https://scontent.fbfh8-2.fna.fbcdn.net/v/t1.15752-9/494834370_2066204493871676_8618287197050490536_n.jpg?stp=dst-jpg_p480x480_tt6&_nc_cat=107&ccb=1-7&_nc_sid=0024fc&_nc_ohc=TCJ01gEMX6IQ7kNvwE_iBBL&_nc_oc=Admy0NRNw4Ivd_qWrc3ZL4nly1L7gw-nadaXJQp04AkhxVhXDpsCssO85Bz8lQ_Cdf9feZsg7hVvYuqK5QCM27Ep&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=scontent.fbfh8-2.fna&oh=03_Q7cD2gE9xrSFOwh0JUb7VwFzCOCrRdun7YQxmSziyoUqnaWxPA&oe=68741353",
-                  email: "",
-                  phone: "(41) 985191224",
+                  name: "Ana Silva",
+                  photo: "https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=300&h=300&fit=crop&crop=face",
+                  email: "ana.silva@email.com",
+                  phone: "(11) 99999-1234",
                   description:
-                    "Mirna Cozinha é uma criadora que transformou seu amor pelo preparo de pratos simples e deliciosos em conteúdo digital viral. Com bom humor, expressões típicas (“Rumbora…!”), dicas práticas do dia a dia e pitadas de memes, ela conecta gastronomia e autenticidade de forma leve, conquistando seguidores que buscam soluções reais na cozinha.",
+                    "Influenciadora de lifestyle e moda com mais de 500k seguidores. Especialista em conteúdo feminino, tendências de moda e beleza. Trabalha com marcas premium e tem alta taxa de engajamento com público feminino de 18-35 anos.",
                 },
-
+                {
+                  id: "2",
+                  name: "Carlos Santos",
+                  photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face",
+                  email: "carlos.santos@email.com",
+                  phone: "(11) 99999-5678",
+                  description:
+                    "Creator de tecnologia e games com 800k seguidores. Focado em reviews de produtos, unboxings e conteúdo educativo sobre inovação. Audiência majoritariamente masculina interessada em tech e gaming.",
+                },
+                {
+                  id: "3",
+                  name: "Mariana Costa",
+                  photo: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop&crop=face",
+                  email: "mariana.costa@email.com",
+                  phone: "(21) 98888-1111",
+                  description:
+                    "Fitness influencer e nutricionista com 650k seguidores. Especializada em treinos funcionais, alimentação saudável e bem-estar. Público engajado interessado em saúde e qualidade de vida.",
+                },
+                {
+                  id: "4",
+                  name: "Pedro Oliveira",
+                  photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face",
+                  email: "pedro.oliveira@email.com",
+                  phone: "(11) 97777-2222",
+                  description:
+                    "Empreendedor digital e coach de negócios com 400k seguidores. Foca em conteúdo sobre empreendedorismo, investimentos e desenvolvimento pessoal. Audiência de profissionais e aspirantes a empreendedores.",
+                },
+                {
+                  id: "5",
+                  name: "Juliana Mendes",
+                  photo: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&h=300&fit=crop&crop=face",
+                  email: "juliana.mendes@email.com",
+                  phone: "(31) 96666-3333",
+                  description:
+                    "Food blogger e chef com 550k seguidores. Especialista em culinária brasileira, receitas práticas e gastronomia. Público interessado em culinária, receitas e cultura gastronômica.",
+                },
+                {
+                  id: "6",
+                  name: "Rafael Lima",
+                  photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop&crop=face",
+                  email: "rafael.lima@email.com",
+                  phone: "(85) 95555-4444",
+                  description:
+                    "Travel blogger e fotógrafo com 720k seguidores. Especializado em destinos nacionais e internacionais, dicas de viagem e fotografia. Audiência apaixonada por viagens e aventuras.",
+                },
+                {
+                  id: "7",
+                  name: "Camila Rodrigues",
+                  photo: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=300&h=300&fit=crop&crop=face",
+                  email: "camila.rodrigues@email.com",
+                  phone: "(41) 94444-5555",
+                  description:
+                    "Beauty guru e maquiadora profissional com 480k seguidores. Especialista em tutoriais de maquiagem, skincare e produtos de beleza. Público feminino interessado em cosméticos e autocuidado.",
+                },
+                {
+                  id: "8",
+                  name: "Lucas Ferreira",
+                  photo: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=300&h=300&fit=crop&crop=face",
+                  email: "lucas.ferreira@email.com",
+                  phone: "(71) 93333-6666",
+                  description:
+                    "Músico e produtor musical com 380k seguidores. Foca em conteúdo sobre música, produção musical e bastidores da indústria. Audiência jovem interessada em música e arte.",
+                },
+                {
+                  id: "9",
+                  name: "Fernanda Alves",
+                  photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&h=300&fit=crop&crop=face",
+                  email: "fernanda.alves@email.com",
+                  phone: "(61) 92222-7777",
+                  description:
+                    "Influenciadora de maternidade e família com 420k seguidores. Compartilha experiências sobre maternidade, educação infantil e vida familiar. Público de mães e famílias jovens.",
+                },
+                {
+                  id: "10",
+                  name: "Diego Martins",
+                  photo: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&h=300&fit=crop&crop=face",
+                  email: "diego.martins@email.com",
+                  phone: "(51) 91111-8888",
+                  description:
+                    "Influenciador de carros e automobilismo com 600k seguidores. Especialista em reviews de veículos, modificações e cultura automotiva. Audiência masculina apaixonada por carros.",
+                },
+                {
+                  id: "11",
+                  name: "Isabela Santos",
+                  photo: "https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=300&h=300&fit=crop&crop=face",
+                  email: "isabela.santos@email.com",
+                  phone: "(81) 90000-9999",
+                  description:
+                    "Arquiteta e designer de interiores com 350k seguidores. Foca em decoração, arquitetura residencial e dicas de design. Público interessado em casa, decoração e lifestyle.",
+                },
+                {
+                  id: "12",
+                  name: "Thiago Pereira",
+                  photo: "https://images.unsplash.com/photo-1507591064344-4c6ce005b128?w=300&h=300&fit=crop&crop=face",
+                  email: "thiago.pereira@email.com",
+                  phone: "(62) 98888-0000",
+                  description:
+                    "Personal trainer e atleta com 520k seguidores. Especializado em musculação, crossfit e performance esportiva. Audiência focada em fitness, esportes e superação pessoal.",
+                },
               ]
               this.saveInfluencers()
             }
@@ -670,6 +864,52 @@
 
           getInfluencers() {
             return this.influencers
+          }
+        }
+
+        // Authentication functions
+        function requestAdminAccess() {
+          const modal = document.getElementById("password-modal");
+          const input = document.getElementById("password-input");
+          
+          modal.classList.add("show");
+          input.value = "";
+          input.focus();
+          
+          // Clear any existing timeout
+          if (authTimeout) {
+            clearTimeout(authTimeout);
+          }
+        }
+
+        function closePasswordModal() {
+          const modal = document.getElementById("password-modal");
+          modal.classList.remove("show");
+        }
+
+        function validatePassword() {
+          const input = document.getElementById("password-input");
+          const password = input.value.trim();
+          
+          if (password === ADMIN_PASSWORD) {
+            isAuthenticated = true;
+            closePasswordModal();
+            
+            // Set timeout for 30 minutes
+            authTimeout = setTimeout(() => {
+              isAuthenticated = false;
+              showToast("Sessão expirada. Faça login novamente para acessar a administração.", "error");
+            }, 30 * 60 * 1000);
+            
+            showToast("Acesso autorizado! Redirecionando...", "success");
+            
+            setTimeout(() => {
+              window.location.href = "admin.html";
+            }, 1000);
+          } else {
+            showToast("Senha incorreta. Tente novamente.", "error");
+            input.value = "";
+            input.focus();
           }
         }
 
@@ -825,10 +1065,31 @@
             })
           }
 
-          // Close modal with Escape key
+          // Event listeners for password modal
+          const passwordModal = document.getElementById("password-modal")
+          const passwordInput = document.getElementById("password-input")
+
+          if (passwordModal) {
+            passwordModal.addEventListener("click", (e) => {
+              if (e.target === passwordModal) {
+                closePasswordModal()
+              }
+            })
+          }
+
+          if (passwordInput) {
+            passwordInput.addEventListener("keypress", (e) => {
+              if (e.key === "Enter") {
+                validatePassword()
+              }
+            })
+          }
+
+          // Close modals with Escape key
           document.addEventListener("keydown", (e) => {
             if (e.key === "Escape") {
               closeInfluencerModal()
+              closePasswordModal()
             }
           })
         })

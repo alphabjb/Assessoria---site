@@ -300,6 +300,87 @@
           background: #ef4444;
         }
 
+        /* Password Modal */
+        .password-modal {
+          display: none;
+          position: fixed;
+          z-index: 2000;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.8);
+          backdrop-filter: blur(5px);
+        }
+
+        .password-modal.show {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .password-modal-content {
+          background: white;
+          border-radius: 1rem;
+          max-width: 400px;
+          width: 90%;
+          padding: 2rem;
+          text-align: center;
+          animation: slideIn 0.3s ease;
+        }
+
+        .password-modal h3 {
+          color: #111827;
+          margin-bottom: 1rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+        }
+
+        .password-modal p {
+          color: #6b7280;
+          margin-bottom: 1.5rem;
+        }
+
+        .password-input {
+          width: 100%;
+          padding: 0.75rem;
+          border: 2px solid #e5e7eb;
+          border-radius: 0.5rem;
+          font-size: 1rem;
+          text-align: center;
+          margin-bottom: 1.5rem;
+          letter-spacing: 0.1em;
+        }
+
+        .password-input:focus {
+          outline: none;
+          border-color: #7c3aed;
+          box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+
+        .password-buttons {
+          display: flex;
+          gap: 1rem;
+        }
+
+        .password-buttons .btn {
+          flex: 1;
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: scale(0.9) translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
           .admin-grid {
@@ -315,6 +396,10 @@
           .header-left {
             flex-direction: column;
             gap: 1rem;
+          }
+
+          .password-buttons {
+            flex-direction: column;
           }
         }
 
@@ -422,7 +507,30 @@
     <!-- Toast Notification -->
     <div id="toast" class="toast"></div>
 
+    <!-- Password Modal -->
+    <div id="password-modal" class="password-modal">
+        <div class="password-modal-content">
+            <h3>
+                <i class="fas fa-lock"></i>
+                Confirmação de Segurança
+            </h3>
+            <p>Digite a senha para confirmar esta ação:</p>
+            <input type="password" id="password-input" class="password-input" placeholder="Digite a senha" maxlength="8">
+            <div class="password-buttons">
+                <button onclick="closePasswordModal()" class="btn btn-outline">Cancelar</button>
+                <button onclick="validatePasswordAction()" class="btn btn-primary">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Admin password
+        const ADMIN_PASSWORD = "13162510";
+        
+        // Pending action storage
+        let pendingAction = null;
+        let pendingActionData = null;
+
         // Shared functions
         function getInitials(name) {
           return name
@@ -450,6 +558,46 @@
             setTimeout(() => {
               toast.classList.remove("show")
             }, 3000)
+          }
+        }
+
+        // Password modal functions
+        function requestPasswordConfirmation(action, data = null) {
+          pendingAction = action;
+          pendingActionData = data;
+          
+          const modal = document.getElementById("password-modal");
+          const input = document.getElementById("password-input");
+          
+          modal.classList.add("show");
+          input.value = "";
+          input.focus();
+        }
+
+        function closePasswordModal() {
+          const modal = document.getElementById("password-modal");
+          modal.classList.remove("show");
+          pendingAction = null;
+          pendingActionData = null;
+        }
+
+        function validatePasswordAction() {
+          const input = document.getElementById("password-input");
+          const password = input.value.trim();
+          
+          if (password === ADMIN_PASSWORD) {
+            closePasswordModal();
+            
+            // Execute the pending action
+            if (pendingAction === 'add') {
+              executeAddInfluencer(pendingActionData);
+            } else if (pendingAction === 'remove') {
+              executeRemoveInfluencer(pendingActionData);
+            }
+          } else {
+            showToast("Senha incorreta. Tente novamente.", "error");
+            input.value = "";
+            input.focus();
           }
         }
 
@@ -529,7 +677,7 @@
                 {
                   id: "7",
                   name: "Camila Rodrigues",
-                  photo: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=300&h=300&fit=crop&face",
+                  photo: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=300&h=300&fit=crop&crop=face",
                   email: "camila.rodrigues@email.com",
                   phone: "(41) 94444-5555",
                   description:
@@ -635,18 +783,23 @@
               return
             }
 
-            // Add influencer
-            window.influencerManager.addInfluencer(influencerData)
-
-            // Reset form
-            form.reset()
-
-            // Reload list
-            loadInfluencersList()
-
-            // Show success message
-            showToast("Influenciador adicionado com sucesso!")
+            // Request password confirmation before adding
+            requestPasswordConfirmation('add', influencerData)
           })
+        }
+
+        function executeAddInfluencer(influencerData) {
+          // Add influencer
+          window.influencerManager.addInfluencer(influencerData)
+
+          // Reset form
+          document.getElementById("add-influencer-form").reset()
+
+          // Reload list
+          loadInfluencersList()
+
+          // Show success message
+          showToast("Influenciador adicionado com sucesso!")
         }
 
         function loadInfluencersList() {
@@ -688,11 +841,14 @@
         }
 
         function removeInfluencer(id) {
-          if (confirm("Tem certeza que deseja remover este influenciador?")) {
-            window.influencerManager.removeInfluencer(id)
-            loadInfluencersList()
-            showToast("Influenciador removido com sucesso!")
-          }
+          // Request password confirmation before removing
+          requestPasswordConfirmation('remove', id)
+        }
+
+        function executeRemoveInfluencer(id) {
+          window.influencerManager.removeInfluencer(id)
+          loadInfluencersList()
+          showToast("Influenciador removido com sucesso!")
         }
 
         // Initialize on page load
@@ -705,6 +861,33 @@
           if (document.getElementById("add-influencer-form")) {
             initializeAdminPage()
           }
+
+          // Event listeners for password modal
+          const passwordModal = document.getElementById("password-modal")
+          const passwordInput = document.getElementById("password-input")
+
+          if (passwordModal) {
+            passwordModal.addEventListener("click", (e) => {
+              if (e.target === passwordModal) {
+                closePasswordModal()
+              }
+            })
+          }
+
+          if (passwordInput) {
+            passwordInput.addEventListener("keypress", (e) => {
+              if (e.key === "Enter") {
+                validatePasswordAction()
+              }
+            })
+          }
+
+          // Close modal with Escape key
+          document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+              closePasswordModal()
+            }
+          })
         })
     </script>
 </body>
